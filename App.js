@@ -1,5 +1,7 @@
-
 import React from 'react';
+import { Provider } from 'react-redux'
+import { store } from './redux/store'
+import Test from './components/Test'
 import {
   SafeAreaView,
   StyleSheet,
@@ -284,6 +286,7 @@ class App extends React.Component {
       )
 
     return (
+    <Provider store={store}>
       <SafeAreaView style={{ flex: 1, }}>
         {/* <StatusBar backgroundColor="blue" barStyle={'dark-content'} /> */}
         <View style={{ ...styles.buttonsContainer }}>
@@ -305,6 +308,7 @@ class App extends React.Component {
             </TouchableOpacity>
           </View>
         </View>
+        <Test/>
         <View style={{ ...styles.videosContainer, }}>
           <ScrollView style={{ ...styles.scrollView }}>
             <View style={{
@@ -346,6 +350,7 @@ class App extends React.Component {
           <Text>Connecting...</Text>
         </View> }
       </SafeAreaView>
+    </Provider>
     );
   }
 };
