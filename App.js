@@ -34,11 +34,6 @@ const pc_config = {
     {
       urls: 'stun:stun.l.google.com:19302'
     },
-    {
-      "url": "",
-      "username": "",
-      "credential": ""
-    }
   ]
 }
 
@@ -50,7 +45,7 @@ class App extends React.Component {
       localStream: null,
       remoteStream: null,
       incommingCall: false,
-      loading: false
+      loading: false,
     }
 
     this.sdp
@@ -59,6 +54,8 @@ class App extends React.Component {
   }
 
   componentDidMount = () => {
+
+    console.log('component mount', this.state)
 
     this.pc = new RTCPeerConnection(pc_config)
 
@@ -87,9 +84,14 @@ class App extends React.Component {
     })
 
     this.socket.on('candidate', (candidate) => {
+      console.log('socket response candidate: ==>', candidate)
       // console.log('From Peer... ', JSON.stringify(candidate))
       // this.candidates = [...this.candidates, candidate]
-      this.pc.addIceCandidate(new RTCIceCandidate(candidate))
+      try{
+        this.pc.addIceCandidate(new RTCIceCandidate(candidate))
+      }catch(err){
+        console.log(err)
+      }
     })
 
     this.pc.onicecandidate = (e) => {
@@ -104,7 +106,7 @@ class App extends React.Component {
     // triggered when there is a change in connection state
     this.pc.oniceconnectionstatechange = (e) => {
       console.log(this.pc.iceConnectionState)
-      
+      // case "disconnected":
       switch(this.pc.iceConnectionState) {
         case "failed":
           this.setState({
@@ -131,13 +133,12 @@ class App extends React.Component {
     }
 
     this.pc.onaddstream = (e) => {
-      debugger
       // this.remoteVideoref.current.srcObject = e.streams[0]
       setTimeout(() => {
         this.setState({
           remoteStream: e.stream
         })
-      }, 3000);
+      }, 1000);
     }
 
     this.permissions()
@@ -204,6 +205,12 @@ class App extends React.Component {
 
   createOffer = () => {
     console.log('Offer')
+
+    //incase of a disconnect
+    console.log(this.pc)
+    if(this.pc.iceConnectionState === "closed"){
+      this.pc = new RTCPeerConnection(pc_config)
+    }
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createOffer
     // initiates the creation of SDP
@@ -308,7 +315,7 @@ class App extends React.Component {
             </TouchableOpacity>
           </View>
         </View>
-        <Test/>
+        {/* <Test/> */}
         <View style={{ ...styles.videosContainer, }}>
           <ScrollView style={{ ...styles.scrollView }}>
             <View style={{
